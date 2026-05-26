@@ -1,1 +1,2321 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Manager Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Galada&family=Poppins:wght@300;400;600&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Galada', 'Hind Siliguri', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        /* ডার্ক এবং লাইট মোড ভেরিয়েবল */
+        :root {
+            --bg-color: #0d0d0d;
+            --container-bg: linear-gradient(145deg, #121212, #1a1a1a);
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-color: #e0e0e0;
+            --text-white: #fff;
+            --input-bg: #1e1e1e;
+        }
+
+        .light-mode {
+            --bg-color: #f3f4f6;
+            --container-bg: linear-gradient(145deg, #ffffff, #f9fafb);
+            --card-bg: rgba(0, 0, 0, 0.02);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --text-color: #374151;
+            --text-white: #111827;
+            --input-bg: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--container-bg);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            padding-bottom: 90px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .app-content::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 68, 68, 0.07);
+            border: 1px solid rgba(255, 68, 68, 0.15);
+            padding: 12px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-glow {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(45deg, #ff4e50, #ff9966);
+            box-shadow: 0 0 15px rgba(255, 78, 80, 0.4);
+        }
+
+        .avatar-glow img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info h2 {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-white);
+        }
+
+        .badge {
+            font-size: 10px;
+            color: #ff5e62;
+            background: rgba(255, 94, 98, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 300;
+        }
+
+        .header-actions {
+            display: flex;
+            font-size: 20px;
+            color: #ff5e62;
+        }
+
+        .month-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 15px 0;
+            gap: 10px;
+        }
+
+        .mess-name-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid var(--card-border);
+            max-width: 55%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .mess-name-title:active {
+            transform: scale(0.98);
+        }
+
+        .mess-name-title i {
+            color: #ff5e62;
+            font-size: 13px;
+        }
+
+        .month-pill {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 94, 98, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .month-pill:active {
+            transform: scale(0.95);
+        }
+
+        .bazar-table-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .bazar-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .bazar-table th {
+            font-size: 11px;
+            color: #ff9966;
+            text-transform: uppercase;
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+        }
+
+        .bazar-table td {
+            font-size: 13px;
+            color: var(--text-color);
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .bazar-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .bazar-table .total-row td {
+            font-weight: 600;
+            color: #ff5e62;
+            border-top: 1px dashed rgba(255, 94, 98, 0.3);
+            padding-top: 14px;
+            font-size: 14px;
+        }
+
+        .btn-trigger-bazar-modal {
+            width: 100%;
+            background: rgba(255, 94, 98, 0.08);
+            border: 1px dashed #ff5e62;
+            color: #ff9966;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .panel-selector-container {
+            margin: 15px 0;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 6px;
+            border-radius: 15px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-tab.active {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 94, 98, 0.2);
+        }
+
+        .section-title {
+            font-size: 11px;
+            text-align: left;
+            color: #777;
+            margin: 12px 0 6px 5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .action-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 15px 10px;
+            border-radius: 20px;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #aaa;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .icon-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #ff5e62;
+        }
+
+        .action-line {
+            width: 1px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            font-size: 20px;
+            color: #ff5e62;
+        }
+
+        .card-data {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label {
+            font-size: 9px;
+            color: #777;
+        }
+
+        .value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-top: 2px;
+        }
+
+        .highlight-border {
+            border: 1px solid rgba(255, 94, 98, 0.5);
+            background: rgba(255, 94, 98, 0.04);
+        }
+
+        .card-icon-glow {
+            font-size: 20px;
+            color: #ff9966;
+            filter: drop-shadow(0 0 5px rgba(255, 94, 98, 0.6));
+        }
+
+        .glow-text {
+            color: #ff9966;
+            text-shadow: 0 0 10px rgba(255, 94, 98, 0.5);
+        }
+
+        .section-title-center {
+            font-size: 11px;
+            text-align: center;
+            color: #666;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        .circle-row {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .circle-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .glow-circle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid #ff5e62;
+            box-shadow: 0 0 12px rgba(255, 94, 98, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-circle span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .circle-label {
+            font-size: 10px;
+            color: #777;
+        }
+
+        .member-list-container {
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .member-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ff5e62;
+            border: 1px solid rgba(255, 94, 98, 0.2);
+            font-size: 16px;
+        }
+
+        .member-details h4 {
+            font-size: 13px;
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        .member-stats {
+            font-size: 10px;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .member-stats span {
+            color: #ff9966;
+            margin-right: 5px;
+        }
+        
+        .meal-breakdown {
+            color: #2ecc71 !important;
+            font-weight: 600;
+        }
+
+        .btn-remove {
+            background: rgba(255, 78, 80, 0.1);
+            border: 1px solid rgba(255, 78, 80, 0.2);
+            color: #ff4e50;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        /* প্রোফাইল ভিউ স্ক্রোল-ফ্রি করার জন্য কম্প্যাক্ট স্টাইল */
+        .profile-view {
+            display: flex;
+            flex-direction: column;
+            padding-top: 5px;
+        }
+
+        .p-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .p-avatar-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .p-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #ff5e62;
+            padding: 2px;
+            box-shadow: 0 0 15px rgba(255, 94, 98, 0.25);
+            background: #1a1a1a;
+            object-fit: cover;
+        }
+
+        .p-avatar-edit-icon {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 10px;
+            border: 2px solid #141414;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .profile-view h3 {
+            color: var(--text-white);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .settings-group {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 12.5px;
+            color: var(--text-color);
+            transition: background 0.3s;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-main {
+            color: #ff5e62;
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .edit-icon-arrow {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+        }
+
+        /* লাইট/ডার্ক মোড টগল */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .3s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        .slider.round {
+            border-radius: 20px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* ভাষা সিলেক্টর */
+        .lang-toggle {
+            display: flex;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #141414;
+        }
+
+        .lang-btn {
+            padding: 3px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: #fff;
+        }
+
+        /* লগআউট বাটন */
+        .logout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff4e50, #f05454);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(240, 84, 84, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fab-btn {
+            position: absolute;
+            bottom: 85px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(255, 94, 98, 0.4);
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(15, 15, 15, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 5px;
+            z-index: 999;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            color: inherit;
+        }
+
+        .nav-item span {
+            font-size: 9px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .nav-item.active {
+            color: #ff5e62;
+            filter: drop-shadow(0 0 6px rgba(255, 94, 98, 0.6));
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            width: 90%;
+            max-width: 380px;
+            background: #161616;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 26px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            transform: translateY(30px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-card h3 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+            font-family: 'Hind Siliguri', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 14px;
+            border-radius: 14px;
+            color: var(--text-white);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn-cancel {
+            background: #242424;
+            color: #a0a0a0;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: #fff;
+        }
+
+        .date-picker-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 94, 98, 0.05);
+            border: 1px solid rgba(255, 94, 98, 0.15);
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .date-picker-row label {
+            font-size: 12px;
+            color: #ff9966;
+            font-weight: 600;
+        }
+        .date-picker-row input[type="date"] {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            color-scheme: dark;
+        }
+
+        .daily-meal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+        .daily-meal-card h4 {
+            font-size: 14px;
+            color: var(--text-white);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .daily-meal-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+        .meal-input-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .meal-input-box label {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .meal-input-box input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 94, 98, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            padding: 4px 0;
+            outline: none;
+        }
+        .meal-input-box input:disabled {
+            background: transparent;
+            border-color: transparent;
+            color: #ff9966;
+        }
+        .total-summary-box {
+            background: linear-gradient(135deg, rgba(255,94,98,0.1), rgba(255,153,102,0.1));
+            border: 1px dashed rgba(255, 94, 98, 0.4);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .total-summary-box h4 {
+            font-size: 13px;
+            color: #ff9966;
+            text-align: center;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        .total-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+        .total-summary-box .total-item {
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+        .total-summary-box .total-item p {
+            font-size: 9px;
+            color: #777;
+        }
+        .total-summary-box .total-item span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* --- নতুন সিকিউরিটি পপ-আপ গেট সিস্টেম CSS --- */
+        .security-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0d0d0d;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+        .security-box {
+            width: 100%;
+            max-width: 380px;
+            background: #161616;
+            border: 1px solid rgba(255, 94, 98, 0.15);
+            padding: 30px 25px;
+            border-radius: 26px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .security-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            padding: 5px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+        .sec-tab-btn {
+            flex: 1;
+            background: none; border: none;
+            padding: 10px; font-size: 14px; font-weight: 600;
+            color: #888; cursor: pointer; border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .sec-tab-btn.active {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 94, 98, 0.2);
+        }
+        .sec-form { display: none; text-align: left; }
+        .sec-form.active { display: block; }
+        .sec-input-group { margin-bottom: 18px; }
+        .sec-input-group label {
+            display: block; font-size: 12px; color: #777;
+            margin-bottom: 6px;
+        }
+        .sec-input-group input {
+            width: 100%; background: #1e1e1e;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 14px; border-radius: 14px;
+            color: #fff; font-size: 14px; outline: none;
+        }
+        .sec-input-group input:focus {
+            border-color: #ff5e62;
+        }
+        .sec-submit-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: white; border: none; border-radius: 14px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            margin-top: 10px; box-shadow: 0 4px 15px rgba(255, 94, 98, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="securityAuthGate" class="security-overlay">
+        <div class="security-box">
+            <div style="margin-bottom: 20px; font-size: 24px; color: #ff5e62;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 style="color: #fff; font-size: 18px; margin-bottom: 20px;" id="lbl-sec-gate-title">Mess Manager Security</h3>
+            
+            <div class="security-tabs">
+                <button id="secLoginTab" class="sec-tab-btn active" onclick="switchSecTab('login')">লগইন</button>
+                <button id="secRegisterTab" class="sec-tab-btn" onclick="switchSecTab('register')">রেজিস্ট্রেশন</button>
+            </div>
+
+            <div id="secLoginForm" class="sec-form active">
+                <div class="sec-input-group">
+                    <label>ইমেইল বা মোবাইল নম্বর</label>
+                    <input type="text" id="secLogUser" placeholder="আপনার ইমেইল বা নম্বর দিন">
+                </div>
+                <div class="sec-input-group">
+                    <label>পাসওয়ার্ড</label>
+                    <input type="password" id="secLogPass" placeholder="আপনার পাসওয়ার্ড দিন">
+                </div>
+                <button class="sec-submit-btn" onclick="handleSecurityLogin()">অ্যাপে প্রবেশ করুন</button>
+            </div>
+
+            <div id="secRegisterForm" class="sec-form">
+                <div class="sec-input-group">
+                    <label>ইমেইল বা মোবাইল নম্বর</label>
+                    <input type="text" id="secRegUser" placeholder="নতুন ইমেইল বা নম্বর দিন">
+                </div>
+                <div class="sec-input-group">
+                    <label>পাসওয়ার্ড</label>
+                    <input type="password" id="secRegPass" placeholder="একটি স্ট্রং পাসওয়ার্ড দিন">
+                </div>
+                <button class="sec-submit-btn" onclick="handleSecurityRegister()">অ্যাকাউন্ট তৈরি করুন</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="app-container" id="mainAppContainer" style="display: none;">
+        
+        <input type="file" id="hiddenProfilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
+        
+        <header class="profile-header">
+            <div class="user-info">
+                <div class="avatar-glow" style="cursor: pointer;" onclick="triggerGallery()">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop" alt="Avatar" id="topNavAvatar">
+                </div>
+                <div>
+                    <h2 id="topNavName">Ashraful Alam Joy</h2>
+                    <span class="badge" id="userRoleBadge">Manager</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="https://www.facebook.com/ashrafulalam05" target="_blank" style="color: #ff5e62;">
+                    <i class="fa-brands fa-facebook fb-icon"></i>
+                </a>
+            </div>
+        </header>
+
+        <div class="app-content">
+
+            <div id="view-dashboard" class="tab-view">
+                <div class="month-row">
+                    <div class="mess-name-title" id="lbl-mess-name-container" onclick="promptChangeMessName()">
+                        <i class="fa-solid fa-fire-burner"></i>
+                        <span id="currentMessNameText">ফায়ার সার্ভিসের মেস</span>
+                    </div>
+                    <div class="month-pill" id="lbl-month-pill" onclick="promptChangeMonth()">
+                        <i class="fa-regular fa-calendar-check"></i> <span id="currentMonthText">মাস: জুলাই ২৬</span>
+                    </div>
+                </div>
+
+                <div class="panel-selector-container">
+                    <div class="panel-tab active" id="tabManager" onclick="switchPanel('manager')">
+                        <i class="fa-solid fa-user-gear"></i> <span id="lbl-manager-panel">ম্যানেজার প্যানেল</span>
+                    </div>
+                    <div class="panel-tab" id="tabMember" onclick="switchPanel('member')">
+                        <i class="fa-solid fa-users"></i> <span id="lbl-member-panel">মেম্বার প্যানেল</span>
+                    </div>
+                </div>
+
+                <div id="manager-panel-view">
+                    <section class="action-section">
+                        <p class="section-title" id="lbl-select-menu">মেনু নির্বাচন করুন</p>
+                        <div class="action-grid">
+                            <div class="action-item" onclick="openModal('member')">
+                                <div class="icon-box"><i class="fa-solid fa-user-plus"></i></div>
+                                <span id="lbl-menu-member">মেম্বার+</span>
+                            </div>
+                            <div class="action-line"></div>
+                            <div class="action-item" onclick="openModal('meal')">
+                                <div class="icon-box"><i class="fa-solid fa-bowl-rice"></i></div>
+                                <span id="lbl-menu-meal">মিল যুক্ত</span>
+                            </div>
+                            <div class="action-line"></div>
+                            <div class="action-item" onclick="openModal('collection')">
+                                <div class="icon-box"><i class="fa-solid fa-vault"></i></div>
+                                <span id="lbl-menu-collect">টাকা জমা</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="dashboard-grid">
+                        <div class="info-card">
+                            <i class="fa-solid fa-scale-balanced card-icon"></i>
+                            <div class="card-data">
+                                <span class="label" id="lbl-dash-bal">MESS BALANCE</span>
+                                <span class="value" id="mess-balance">৳ ০.০০</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <i class="fa-solid fa-coins card-icon"></i>
+                            <div class="card-data">
+                                <span class="label" id="lbl-dash-coll">TOTAL COLLECTION</span>
+                                <span class="value" id="total-collection">৳ ০.০০</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <i class="fa-solid fa-utensils card-icon"></i>
+                            <div class="card-data">
+                                <span class="label" id="lbl-dash-meals">TOTAL MEALS</span>
+                                <span class="value" id="total-meals">০.০০</span>
+                            </div>
+                        </div>
+                        <div class="info-card highlight-border">
+                            <i class="fa-solid fa-calculator card-icon-glow"></i>
+                            <div class="card-data">
+                                <span class="label" id="lbl-dash-rate">MEAL RATE</span>
+                                <span class="value glow-text" id="meal-rate">৳ ০.০০</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="member-panel-view" style="display: none;">
+                    <section class="personal-section">
+                        <p class="section-title-center" id="lbl-live-summary">AMAR HISAB (LIVE SUMMARY)</p>
+                        <div class="circle-row">
+                            <div class="circle-item">
+                                <div class="glow-circle"><span id="my-meals">০.০</span></div>
+                                <span class="circle-label" id="lbl-circ-meals">Total Meals</span>
+                            </div>
+                            <div class="circle-item">
+                                <div class="glow-circle"><span id="my-collection">৳ ০</span></div>
+                                <span class="circle-label" id="lbl-circ-coll">Total Coll.</span>
+                            </div>
+                            <div class="circle-item">
+                                <div class="glow-circle"><span id="my-cost">৳ ০</span></div>
+                                <span class="circle-label" id="lbl-circ-cost">Meal Cost</span>
+                            </div>
+                            <div class="circle-item positive">
+                                <div class="glow-circle"><span id="my-balance">৳ ০</span></div>
+                                <span class="circle-label" id="lbl-circ-bal">Balance</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="dashboard-grid">
+                        <div class="info-card highlight-border" style="grid-column: span 2;">
+                            <i class="fa-solid fa-calculator card-icon-glow"></i>
+                            <div class="card-data">
+                                <span class="label" id="lbl-curr-rate-lang">CURRENT MEAL RATE (চলতি মিল রেট)</span>
+                                <span class="value glow-text" id="member-view-meal-rate" style="font-size: 18px;">৳ ০.০০</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div id="view-daily-meals" class="tab-view" style="display: none;">
+                <section class="daily-meals-section">
+                    <p class="section-title-center" id="lbl-daily-tracker">DAILY MEAL TRACKER (তারিখ ভিত্তিক মিল)</p>
+                    
+                    <div class="date-picker-row">
+                        <label for="mealDateSelect" id="lbl-select-date-1"><i class="fa-regular fa-calendar-days"></i> তারিখ নির্বাচন করুন:</label>
+                        <input type="date" id="mealDateSelect" onchange="renderDailyMealView()">
+                    </div>
+
+                    <div id="dailyMealContainer"></div>
+
+                    <div class="total-summary-box">
+                        <h4 id="lbl-date-summary-title">নির্বাচিত তারিখের মোট মিলের বিবরণ</h4>
+                        <div class="total-summary-grid">
+                            <div class="total-item">
+                                <p id="lbl-b1">সকাল</p>
+                                <span id="tot-breakfast">০</span>
+                            </div>
+                            <div class="total-item">
+                                <p id="lbl-l1">দুপুর</p>
+                                <span id="tot-lunch">০</span>
+                            </div>
+                            <div class="total-item">
+                                <p id="lbl-d1">রাত</p>
+                                <span id="tot-dinner">০</span>
+                            </div>
+                            <div class="total-item">
+                                <p id="lbl-e1">ডিম</p>
+                                <span id="tot-egg">০</span>
+                              </div>
+                            <div class="total-item">
+                                <p id="lbl-o1">অন্যান্য</p>
+                                <span id="tot-other">০</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-bazar-list" class="tab-view" style="display: none;">
+                <section class="bazar-list-section">
+                    <p class="section-title-center" id="lbl-bazar-tracker">DAILY BAZAR LIST (তারিখ ভিত্তিক বাজার)</p>
+                    
+                    <div class="date-picker-row">
+                        <label for="bazarDateSelect" id="lbl-select-date-2"><i class="fa-regular fa-calendar-days"></i> তারিখ নির্বাচন করুন:</label>
+                        <input type="date" id="bazarDateSelect" onchange="renderDailyBazarView()">
+                    </div>
+
+                    <button class="btn-trigger-bazar-modal" id="bazarModalTriggerBtn" onclick="openModal('direct_bazar')">
+                        <i class="fa-solid fa-basket-shopping"></i> <span id="lbl-add-new-bazar">নতুন বাজার যুক্ত করুন</span>
+                    </button>
+
+                    <div class="bazar-table-box">
+                        <table class="bazar-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;" id="lbl-th-sl">ক্রমিক নং</th>
+                                    <th style="width: 45%;" id="lbl-th-item">বাজার আইটেম</th>
+                                    <th style="width: 20%;" id="lbl-th-qty">পরিমাণ</th>
+                                    <th style="width: 20%;" id="lbl-th-money">টাকা</th>
+                                </tr>
+                            </thead>
+                            <tbody id="liveBazarTableBody"></tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="3" id="lbl-total-bazar-cost">সর্বমোট বাজার খরচ:</td>
+                                    <td id="liveBazarTotal">৳ ০</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-members" class="tab-view" style="display: none;">
+                <section class="members-section">
+                    <p class="section-title-center" id="lbl-total-list-title">MESS MEMBERS (TOTAL LIST)</p>
+                    <div class="member-list-container" id="memberList"></div>
+                </section>
+            </div>
+
+            <div id="view-profile" class="tab-view" style="display: none;">
+                <div class="profile-view">
+                    
+                    <div class="p-avatar-section">
+                        <div class="p-avatar-wrapper" onclick="triggerGallery()">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Profile Avatar" id="mainProfileAvatar" class="p-avatar">
+                            <div class="p-avatar-edit-icon">
+                                <i class="fa-solid fa-pencil"></i>
+                            </div>
+                        </div>
+                        <h3 id="mainProfileName">Ashraful Alam Joy</h3>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="item-left">
+                                <i class="fa-regular fa-sun icon-main"></i>
+                                <span id="lbl-mode-select">মোড সিলেক্ট করুন (Dark/Light)</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="themeToggleCheckbox" onchange="toggleThemeMode(this)">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="item-left">
+                                <i class="fa-solid fa-language icon-main"></i>
+                                <span id="lbl-lang-select">ভাষা সিলেক্ট করুন</span>
+                            </div>
+                            <div class="lang-toggle">
+                                <span class="lang-btn active" id="btnLangBn" onclick="setLanguage('bn')">বাংলা</span>
+                                <span class="lang-btn" id="btnLangEn" onclick="setLanguage('en')">En</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title" id="lbl-sec-info">অ্যাকাউন্টের তথ্য</div>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="item-left">
+                                <i class="fa-regular fa-envelope icon-main"></i>
+                                <span><span id="lbl-info-email">ইমেইল:</span> <span id="profileEmailText">ashrafulalamjoy003@gmail.com</span></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="item-left">
+                                <i class="fa-solid fa-phone icon-main"></i>
+                                <span><span id="lbl-info-phone">ফোন নম্বর:</span> <span id="profilePhoneText">01754851433</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title" id="lbl-sec-setting">অ্যাকাউন্ট সেটিং</div>
+                    <div class="settings-group">
+                        <div class="setting-item" onclick="openModal('edit_profile')" style="cursor: pointer;">
+                            <div class="item-left">
+                                <i class="fa-regular fa-user icon-main"></i>
+                                <span id="lbl-change-info">আমার তথ্য পরিবর্তন</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right edit-icon-arrow"></i>
+                        </div>
+                        <div class="setting-item" onclick="openModal('edit_email')" style="cursor: pointer;">
+                            <div class="item-left">
+                                <i class="fa-solid fa-at icon-main"></i>
+                                <span id="lbl-change-email">ইমেইল পরিবর্তন</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right edit-icon-arrow"></i>
+                        </div>
+                        <div class="setting-item" onclick="openModal('edit_password')" style="cursor: pointer;">
+                            <div class="item-left">
+                                <i class="fa-solid fa-lock icon-main"></i>
+                                <span id="lbl-change-pass">পাসওয়ার্ড পরিবর্তন</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right edit-icon-arrow"></i>
+                        </div>
+                    </div>
+
+                    <button class="logout-btn" onclick="handleSecurityLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="fab-btn" id="appFabBtn" onclick="openModal('meal')">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" id="nav-dash" onclick="switchMainTab('dashboard')">
+                <i class="fa-solid fa-chart-pie"></i><span id="lbl-nav-1">হিসাবপাতি</span>
+            </div>
+            <div class="nav-item" id="nav-daily" onclick="switchMainTab('daily-meals')">
+                <i class="fa-solid fa-bowl-food"></i><span id="lbl-nav-2">মিলের হিসেব</span>
+            </div>
+            <div class="nav-item" id="nav-bazar" onclick="switchMainTab('bazar-list')">
+                <i class="fa-solid fa-basket-shopping"></i><span id="lbl-nav-3">বাজার তালিকা</span>
+            </div>
+            <div class="nav-item" id="nav-memb" onclick="switchMainTab('members')">
+                <i class="fa-solid fa-users-viewfinder"></i><span id="lbl-nav-4">মিল মেম্বার</span>
+            </div>
+            <div class="nav-item" id="nav-prof" onclick="switchMainTab('profile')">
+                <i class="fa-solid fa-user-gear"></i><span id="lbl-nav-5">প্রোফাইল</span>
+            </div>
+        </nav>
+
+    </div>
+
+    <div class="modal-overlay" id="appModal">
+        <div class="modal-card">
+            <h3 id="modalTitle">নতুন ডাটা যুক্ত করুন</h3>
+            
+            <div id="form-member" class="modal-form-view" style="display:none;">
+                <div class="input-group">
+                    <label id="lbl-pop-mem-name">মেম্বারের নাম (বাংলায়)</label>
+                    <input type="text" id="new-member-name" placeholder="যেমন: Ashraful,Joy">
+                </div>
+            </div>
+
+            <div id="form-general" class="modal-form-view" style="display:none;">
+                <div class="input-group" id="user-select-holder">
+                    <label id="lbl-pop-select-mem">মেম্বার নির্বাচন করুন</label>
+                    <select id="select-user"></select>
+                </div>
+                
+                <div class="input-group" id="input-holder">
+                    <label id="dynamicLabel">পরিমাণ</label>
+                    <input type="number" id="dynamicInput" step="0.1" placeholder="০.০০">
+                </div>
+            </div>
+
+            <div id="form-direct-bazar" class="modal-form-view" style="display:none;">
+                <div class="input-group">
+                    <label id="lbl-pop-b-item">বাজার আইটেম (বাংলায়)</label>
+                    <input type="text" id="dbazarFormItem" placeholder="যেমন: রুই মাছ">
+                </div>
+                <div class="input-group">
+                    <label id="lbl-pop-b-qty">পরিমাণ</label>
+                    <input type="text" id="dbazarFormQty" placeholder="যেমন: ৩ কেজি">
+                </div>
+                <div class="input-group">
+                    <label id="lbl-pop-b-tk">টাকা (৳)</label>
+                    <input type="number" id="dbazarFormAmount" placeholder="যেমন: ৪৫০">
+                </div>
+            </div>
+
+            <div id="form-edit-profile" class="modal-form-view" style="display:none;">
+                <div class="input-group">
+                    <label id="lbl-pop-p-name">নাম</label>
+                    <input type="text" id="editProfileNameInput" placeholder="আপনার নাম লিখুন">
+                </div>
+                <div class="input-group">
+                    <label id="lbl-pop-p-contact">ফোন নম্বর</label>
+                    <input type="text" id="editProfileContactInput" placeholder="আপনার ফোন নম্বর লিখুন">
+                </div>
+            </div>
+
+            <div id="form-edit-email" class="modal-form-view" style="display:none;">
+                <div class="input-group">
+                    <label id="lbl-pop-p-email">নতুন ইমেইল ঠিকানা</label>
+                    <input type="email" id="editProfileEmailInput" placeholder="যেমন: example@mail.com">
+                </div>
+            </div>
+
+            <div id="form-edit-password" class="modal-form-view" style="display:none;">
+                <div class="input-group">
+                    <label>বর্তমান পাসওয়ার্ড</label>
+                    <input type="password" id="oldPasswordInput" placeholder="আপনার বর্তমান পাসওয়ার্ড দিন">
+                </div>
+                <div class="input-group">
+                    <label>নতুন পাসওয়ার্ড</label>
+                    <input type="password" id="newPasswordInput" placeholder="কমপক্ষে ৬ ডিজিটের পাসওয়ার্ড">
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="modal-btn btn-cancel" id="lbl-pop-cancel" onclick="closeModal()">বাতিল</button>
+                <button class="modal-btn btn-save" id="btnSaveAction">সংরক্ষণ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://mess-manager-bab1d-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let currentActiveMode = 'meal';
+        let globalMealRate = 0;
+        let isAdminMode = true; 
+        let currentUsersList = {};
+        let currentLang = 'bn';
+        let currentSavedMonthText = "জুলাই ২৬";
+        let currentSavedMessName = "ফায়ার সার্ভিসের মেস";
+
+        // --- নতুন সিকিউরিটি সিস্টেম লজিক এবং ফাংশন ---
+        function switchSecTab(type) {
+            if(type === 'login') {
+                document.getElementById('secLoginForm').classList.add('active');
+                document.getElementById('secRegisterForm').classList.remove('active');
+                document.getElementById('secLoginTab').classList.add('active');
+                document.getElementById('secRegisterTab').classList.remove('active');
+            } else {
+                document.getElementById('secRegisterForm').classList.add('active');
+                document.getElementById('secLoginForm').classList.remove('active');
+                document.getElementById('secRegisterTab').classList.add('active');
+                document.getElementById('secLoginTab').classList.remove('active');
+            }
+        }
+
+        // সিকিউরিটি রেজিস্ট্রেশন লজিক (Firebase-এ জমা হবে)
+        function handleSecurityRegister() {
+            const user = document.getElementById('secRegUser').value.trim();
+            const pass = document.getElementById('secRegPass').value.trim();
+
+            if(!user || !pass) {
+                alert(currentLang === 'en' ? 'Please fill all fields!' : 'সবগুলো ঘর পূরণ করুন!');
+                return;
+            }
+
+            const safeKey = btoa(user).replace(/=/g, "");
+
+            database.ref('app_credentials/' + safeKey).once('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    alert(currentLang === 'en' ? 'User already exists!' : 'এই অ্যাকাউন্টটি ইতিমধ্যে তৈরি করা আছে!');
+                } else {
+                    database.ref('app_credentials/' + safeKey).set({
+                        username: user,
+                        password: pass
+                    }, () => {
+                        alert(currentLang === 'en' ? 'Registration Successful! Logging in...' : 'নিবন্ধন সফল হয়েছে! অ্যাপে প্রবেশ করা হচ্ছে...');
+                        
+                        let defaultName = "User_" + user.split('@')[0];
+                        localStorage.setItem('app_user_name', defaultName);
+                        
+                        if(user.includes('@')) {
+                            localStorage.setItem('app_user_email', user);
+                            localStorage.setItem('app_user_contact', '01XXXXXXXXX');
+                        } else {
+                            localStorage.setItem('app_user_contact', user);
+                            localStorage.setItem('app_user_email', 'example@mail.com');
+                        }
+
+                        localStorage.setItem('mess_user_logged', 'true');
+                        localStorage.setItem('mess_user_identity', user);
+                        syncProfileUI();
+                        unlockApp();
+                    });
+                }
+            });
+        }
+
+        // সিকিউরিটি লগইন লজিক
+        function handleSecurityLogin() {
+            const user = document.getElementById('secLogUser').value.trim();
+            const pass = document.getElementById('secLogPass').value.trim();
+
+            if(!user || !pass) {
+                alert(currentLang === 'en' ? 'Please fill all fields!' : 'সবগুলো ঘর পূরণ করুন!');
+                return;
+            }
+
+            const safeKey = btoa(user).replace(/=/g, "");
+
+            database.ref('app_credentials/' + safeKey).once('value', (snapshot) => {
+                const creds = snapshot.val();
+                if(creds && creds.password === pass) {
+                    localStorage.setItem('mess_user_logged', 'true');
+                    localStorage.setItem('mess_user_identity', user);
+                    unlockApp();
+                } else {
+                    alert(currentLang === 'en' ? 'Invalid Credentials!' : 'ভুল ইউজারনেম অথবা পাসওয়ার্ড!');
+                }
+            });
+        }
+
+        // অ্যাপ আনলক বা পর্দা সরানোর মেইন ফাংশন
+        function unlockApp() {
+            document.getElementById('securityAuthGate').style.display = 'none';
+            document.getElementById('mainAppContainer').style.display = 'flex';
+        }
+
+        // লগআউট ফাংশন
+        function handleSecurityLogout() {
+            localStorage.removeItem('mess_user_logged');
+            localStorage.removeItem('mess_user_identity');
+            location.reload();
+        }
+
+
+        // ভাষা পরিবর্তনের জন্য ট্রান্সলেশন অবজেক্ট ডাটা ডিকশনারি
+        const translations = {
+            bn: {
+                managerPanel: "ম্যানেজার প্যানেল",
+                memberPanel: "মেম্বার প্যানেল",
+                selectMenu: "মেনু নির্বাচন করুন",
+                menuMember: "মেম্বার+",
+                menuMeal: "মিল যুক্ত",
+                menuCollect: "টাকা জমা",
+                dashBal: "MESS BALANCE",
+                dashColl: "TOTAL COLLECTION",
+                dashMeals: "TOTAL MEALS",
+                dashRate: "MEAL RATE",
+                liveSummary: "AMAR HISAB (LIVE SUMMARY)",
+                circMeals: "Total Meals",
+                circColl: "Total Coll.",
+                circCost: "Meal Cost",
+                circBal: "Balance",
+                currRateLang: "CURRENT MEAL RATE (চলতি মিল রেট)",
+                dailyTracker: "DAILY MEAL TRACKER (তারিখ ভিত্তিক মিল)",
+                selectDate: "তারিখ নির্বাচন করুন:",
+                dateSummaryTitle: "নির্বাচিত তারিখের মোট মিলের বিবরণ",
+                b1: "সকাল", l1: "দুপুর", d1: "রাত", e1: "ডিম", o1: "অন্যান্য",
+                bazarTracker: "DAILY BAZAR LIST (তারিখ ভিত্তিক বাজার)",
+                addNewBazar: "নতুন বাজার যুক্ত করুন",
+                thSl: "ক্রমিক নং", thItem: "বাজার আইটেম", thQty: "পরিমাণ", thMoney: "টাকা",
+                totalBazarCost: "সর্বমোট বাজার খরচ:",
+                totalListTitle: "MESS MEMBERS (TOTAL LIST)",
+                modeSelect: "মোড সিলেক্ট করুন (Dark/Light)",
+                langSelect: "ভাষা সিলেক্ট করুন",
+                secInfo: "অ্যাকাউন্টের তথ্য",
+                infoEmail: "ইমেইল:", infoPhone: "ফোন নম্বর:",
+                secSetting: "অ্যাকাউন্ট সেটিং",
+                changeInfo: "আমার তথ্য পরিবর্তন",
+                changeEmail: "ইমেইল পরিবর্তন",
+                changePass: "পাসওয়ার্ড পরিবর্তন",
+                nav1: "হিসাবপাতি", nav2: "মিলের হিসেব", nav3: "বাজার তালিকা", nav4: "মিল মেম্বার", nav5: "প্রোফাইল",
+                popMemName: "মেম্বারের নাম (বাংলায়)", popSelectMem: "মেম্বার নির্বাচন করুন",
+                popBItem: "বাজার আইটেম (বাংলায়)", popBQty: "পরিমাণ", popBTk: "টাকা (৳)",
+                popPName: "নাম", popPContact: "ফোন নম্বর", popPEmail: "নতুন ইমেইল ঠিকানা", popCancel: "বাতিল", popSave: "সংরক্ষণ করুন"
+            },
+            en: {
+                managerPanel: "Manager Panel",
+                memberPanel: "Member Panel",
+                selectMenu: "Select Menu",
+                menuMember: "Member+",
+                menuMeal: "Add Meal",
+                menuCollect: "Deposit Money",
+                dashBal: "MESS BALANCE",
+                dashColl: "TOTAL COLLECTION",
+                dashMeals: "TOTAL MEALS",
+                dashRate: "MEAL RATE",
+                liveSummary: "MY ACCOUNT (LIVE SUMMARY)",
+                circMeals: "Total Meals",
+                circColl: "Total Coll.",
+                circCost: "Meal Cost",
+                circBal: "Balance",
+                currRateLang: "CURRENT MEAL RATE",
+                dailyTracker: "DAILY MEAL TRACKER",
+                selectDate: "Select Date:",
+                dateSummaryTitle: "Total Meal Details of Selected Date",
+                b1: "Breakfast", l1: "Lunch", d1: "Dinner", e1: "Egg", o1: "Others",
+                bazarTracker: "DAILY BAZAR LIST",
+                addNewBazar: "Add New Bazar Expense",
+                thSl: "SL No", thItem: "Bazar Item", thQty: "Quantity", thMoney: "Amount",
+                totalBazarCost: "Total Bazar Cost:",
+                totalListTitle: "MESS MEMBERS (TOTAL LIST)",
+                modeSelect: "Select Mode (Dark/Light)",
+                langSelect: "Select Language",
+                secInfo: "Account Info",
+                infoEmail: "Email:", infoPhone: "Phone Number:",
+                secSetting: "Account Settings",
+                changeInfo: "Change Profile Info",
+                changeEmail: "Change Email Address",
+                changePass: "Change Password",
+                nav1: "Dashboard", nav2: "Meal Records", nav3: "Bazar List", nav4: "Mess Members", nav5: "Profile",
+                popMemName: "Member Name (In English)", popSelectMem: "Select Mess Member",
+                popBItem: "Bazar Item Name", popBQty: "Quantity", popBTk: "Amount (৳)",
+                popPName: "Full Name", popPContact: "Phone Number", popPEmail: "New Email Address", popCancel: "Cancel", popSave: "Save Data"
+            }
+        };
+
+        // মেসের নাম পরিবর্তন করার রিয়েলটাইম ফাংশন (Firebase sync সহ)
+        function promptChangeMessName() {
+            if(!isAdminMode) return;
+            const msg = currentLang === 'en' ? "Enter New Mess Name:" : "নতুন মেসের নাম লিখুন:";
+            const newMessName = prompt(msg, currentSavedMessName);
+            if(newMessName && newMessName.trim() !== "") {
+                database.ref('summary/config_mess_name').set(newMessName.trim());
+            }
+        }
+
+        // মাসের নাম পরিবর্তন করার রিয়েলটাইম ফাংশন (Firebase sync সহ)
+        function promptChangeMonth() {
+            if(!isAdminMode) return;
+            const msg = currentLang === 'en' ? "Enter Month & Year (e.g., July 26):" : "নতুন মাস এবং বছর লিখুন (যেমন: জুলাই ২৬):";
+            const newMonthText = prompt(msg, currentSavedMonthText);
+            if(newMonthText && newMonthText.trim() !== "") {
+                database.ref('summary/config_month').set(newMonthText.trim());
+            }
+        }
+
+        // ভাষা পরিবর্তন করার রিয়েলটাইম ফাংশন
+        function setLanguage(lang) {
+            currentLang = lang;
+            if(lang === 'en') {
+                document.getElementById('btnLangEn').classList.add('active');
+                document.getElementById('btnLangBn').classList.remove('active');
+                document.getElementById('lbl-sec-gate-title').innerText = "Mess Manager Security";
+            } else {
+                document.getElementById('btnLangBn').classList.add('active');
+                document.getElementById('btnLangEn').classList.remove('active');
+                document.getElementById('lbl-sec-gate-title').innerText = "মেস ম্যানেজার সিকিউরিটি";
+            }
+
+            Object.keys(translations[lang]).forEach(key => {
+                const formattedId = 'lbl-' + key.replace(/([A-Z])/g, "-$1").toLowerCase();
+                const element = document.getElementById(formattedId);
+                if(element) {
+                    if(element.tagName === "INPUT" || element.tagName === "SELECT") {
+                        element.placeholder = translations[lang][key];
+                    } else if (formattedId !== 'lbl-month-pill' && formattedId !== 'lbl-mess-name-container') {
+                        element.innerText = translations[lang][key];
+                    }
+                }
+            });
+            
+            document.getElementById('lbl-pop-cancel').innerText = translations[lang].popCancel;
+            renderMonthUI();
+            renderMessNameUI();
+        }
+
+        function renderMonthUI() {
+            const prefix = currentLang === 'en' ? "Month: " : "মাস: ";
+            document.getElementById('currentMonthText').innerText = prefix + currentSavedMonthText;
+        }
+
+        function renderMessNameUI() {
+            document.getElementById('currentMessNameText').innerText = currentSavedMessName;
+        }
+
+        // ডার্ক এবং লাইট মোড টগল হ্যান্ডলার
+        function toggleThemeMode(checkbox) {
+            if(checkbox.checked) {
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('app_theme_mode', 'dark');
+            } else {
+                document.body.classList.add('light-mode');
+                localStorage.setItem('app_theme_mode', 'light');
+            }
+        }
+
+        // গ্যালারি ওপেন করার ক্লিক লজিক
+        function triggerGallery() {
+            document.getElementById('hiddenProfilePhotoInput').click();
+        }
+
+        // গ্যালারি থেকে সিলেক্ট করা ছবি রিড করার সিস্টেম
+        function handleProfilePhotoUpload(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('app_user_photo', e.target.result);
+                    syncProfileUI();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isLogged = localStorage.getItem('mess_user_logged');
+            if(isLogged === 'true') {
+                unlockApp();
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('mealDateSelect').value = today;
+            document.getElementById('bazarDateSelect').value = today;
+            
+            const savedTheme = localStorage.getItem('app_theme_mode') || 'dark';
+            const themeCheckbox = document.getElementById('themeToggleCheckbox');
+            if(savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeCheckbox.checked = false;
+            } else {
+                document.body.classList.remove('light-mode');
+                themeCheckbox.checked = true;
+            }
+
+            syncProfileUI();
+        });
+
+        function syncProfileUI() {
+            const savedName = localStorage.getItem('app_user_name') || 'Ashraful Alam Joy';
+            const savedPhoto = localStorage.getItem('app_user_photo') || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150';
+            const savedContact = localStorage.getItem('app_user_contact') || '01754851433';
+            const savedEmail = localStorage.getItem('app_user_email') || 'ashrafulalamjoy003@gmail.com';
+
+            document.getElementById('topNavName').innerText = savedName;
+            document.getElementById('topNavAvatar').src = savedPhoto;
+            document.getElementById('mainProfileName').innerText = savedName;
+            document.getElementById('mainProfileAvatar').src = savedPhoto;
+            
+            document.getElementById('profilePhoneText').innerText = savedContact;
+            document.getElementById('profileEmailText').innerText = savedEmail;
+        }
+
+        function toBanglaNum(num) {
+            if (num === undefined || num === null) return '০';
+            const banglaDigits = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯','.':'.'};
+            return num.toString().split('').map(digit => banglaDigits[digit] || digit).join('');
+        }
+
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(view => view.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            if(tabId === 'dashboard') {
+                document.getElementById('view-dashboard').style.display = 'block';
+                document.getElementById('nav-dash').classList.add('active');
+                document.getElementById('appFabBtn').style.display = isAdminMode ? 'flex' : 'none';
+            } else if(tabId === 'daily-meals') {
+                document.getElementById('view-daily-meals').style.display = 'block';
+                document.getElementById('nav-daily').classList.add('active');
+                document.getElementById('appFabBtn').style.display = 'none';
+                renderDailyMealView();
+            } else if(tabId === 'bazar-list') {
+                document.getElementById('view-bazar-list').style.display = 'block';
+                document.getElementById('nav-bazar').classList.add('active');
+                document.getElementById('appFabBtn').style.display = 'none';
+                renderDailyBazarView();
+            } else if(tabId === 'members') {
+                document.getElementById('view-members').style.display = 'block';
+                document.getElementById('nav-memb').classList.add('active');
+                document.getElementById('appFabBtn').style.display = 'none';
+            } else if(tabId === 'profile') {
+                document.getElementById('view-profile').style.display = 'block';
+                document.getElementById('nav-prof').classList.add('active');
+                document.getElementById('appFabBtn').style.display = 'none';
+            }
+        }
+
+        function switchPanel(panelType) {
+            const managerView = document.getElementById('manager-panel-view');
+            const memberView = document.getElementById('member-panel-view');
+            const tabManager = document.getElementById('tabManager');
+            const tabMember = document.getElementById('tabMember');
+            const fabBtn = document.getElementById('appFabBtn');
+            const roleBadge = document.getElementById('userRoleBadge');
+            const directBazarBtn = document.getElementById('bazarModalTriggerBtn');
+
+            if(panelType === 'manager') {
+                isAdminMode = true;
+                managerView.style.display = 'block';
+                memberView.style.display = 'none';
+                tabManager.classList.add('active');
+                tabMember.classList.remove('active');
+                fabBtn.style.display = 'flex';
+                if(directBazarBtn) directBazarBtn.style.display = 'flex';
+                roleBadge.innerText = "Manager";
+                roleBadge.style.color = "#ff5e62";
+                roleBadge.style.background = "rgba(255, 94, 98, 0.15)";
+            } else {
+                isAdminMode = false;
+                managerView.style.display = 'none';
+                memberView.style.display = 'block';
+                tabManager.classList.remove('active');
+                tabMember.classList.add('active');
+                fabBtn.style.display = 'none';
+                if(directBazarBtn) directBazarBtn.style.display = 'none';
+                roleBadge.innerText = "Member View";
+                roleBadge.style.color = "#2ecc71";
+                roleBadge.style.background = "rgba(46, 204, 113, 0.15)";
+            }
+            renderDailyMealView();
+            renderDailyBazarView();
+        }
+
+        database.ref('summary').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                globalMealRate = parseFloat(data.mealRate || 0);
+                document.getElementById('mess-balance').innerText = "৳ " + toBanglaNum(parseFloat(data.balance || 0).toFixed(2));
+                document.getElementById('total-collection').innerText = "৳ " + toBanglaNum(parseFloat(data.collection || 0).toFixed(2));
+                document.getElementById('total-meals').innerText = toBanglaNum(parseFloat(data.meals || 0).toFixed(2));
+                document.getElementById('meal-rate').innerText = "৳ " + toBanglaNum(globalMealRate.toFixed(2));
+                document.getElementById('member-view-meal-rate').innerText = "৳ " + toBanglaNum(globalMealRate.toFixed(2));
+                
+                if(data.config_month) {
+                    currentSavedMonthText = data.config_month;
+                } else {
+                    currentSavedMonthText = "জুলাই ২৬";
+                }
+                
+                if(data.config_mess_name) {
+                    currentSavedMessName = data.config_mess_name;
+                } else {
+                    currentSavedMessName = "ফায়ার সার্ভিসের মেস";
+                }
+                
+                renderMonthUI();
+                renderMessNameUI();
+                updatePersonalPanel();
+            }
+        });
+
+        function updatePersonalPanel() {
+            database.ref('users/Ashraful').once('value', (snapshot) => {
+                const userData = snapshot.val();
+                if(userData) {
+                    document.getElementById('my-meals').innerText = toBanglaNum(parseFloat(userData.meals || 0).toFixed(1));
+                    document.getElementById('my-collection').innerText = "৳ " + toBanglaNum(parseInt(userData.collection || 0));
+                    const calculatedMealExpense = parseFloat(userData.meals || 0) * globalMealRate;
+                    document.getElementById('my-cost').innerText = "৳ " + toBanglaNum(parseInt(calculatedMealExpense));
+                    const finalBalance = parseInt((userData.collection || 0) - (calculatedMealExpense + parseFloat(userData.fixedCost || 0)));
+                    document.getElementById('my-balance').innerText = (finalBalance >= 0 ? "+৳ " : "৳ ") + toBanglaNum(finalBalance);
+                }
+            });
+        }
+
+        database.ref('users').on('value', (snapshot) => {
+            const users = snapshot.val();
+            currentUsersList = users || {};
+            
+            const memberListDiv = document.getElementById('memberList');
+            const selectUserDropdown = document.getElementById('select-user');
+            
+            memberListDiv.innerHTML = '';
+            selectUserDropdown.innerHTML = '';
+
+            if(users) {
+                database.ref('daily_meals').once('value', (mealSnapshot) => {
+                    const allDaysData = mealSnapshot.val() || {};
+
+                    Object.keys(users).forEach(username => {
+                        const uData = users[username];
+                        
+                        let opt = document.createElement('option');
+                        opt.value = username;
+                        opt.innerText = username;
+                        selectUserDropdown.appendChild(opt);
+
+                        let totalBreakfast = 0;
+                        let totalLunch = 0;
+                        let totalDinner = 0;
+
+                        Object.keys(allDaysData).forEach(date => {
+                            if(allDaysData[date] && allDaysData[date][username]) {
+                                const dayMeal = allDaysData[date][username];
+                                totalBreakfast += parseFloat(dayMeal.breakfast || 0);
+                                totalLunch += parseFloat(dayMeal.lunch || 0);
+                                totalDinner += parseFloat(dayMeal.dinner || 0);
+                            }
+                        });
+
+                        const cardHTML = `
+                            <div class="member-card">
+                                <div class="member-left">
+                                    <div class="member-avatar"><i class="fa-solid fa-user"></i></div>
+                                    <div class="member-details">
+                                        <h4>${username}</h4>
+                                        <div class="member-stats">
+                                            মোট মিল: <span>${toBanglaNum(parseFloat(uData.meals || 0).toFixed(1))}</span> 
+                                            <span class="meal-breakdown">(সকাল: ${toBanglaNum(totalBreakfast)} | দুপুর: ${toBanglaNum(totalLunch)} | রাত: ${toBanglaNum(totalDinner)})</span><br>
+                                            জমা: <span>৳${toBanglaNum(parseInt(uData.collection || 0))}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn-remove" onclick="deleteMember('${username}')">রিমুভ</button>
+                            </div>
+                        `;
+                        memberListDiv.innerHTML += cardHTML;
+                    });
+                });
+                updatePersonalPanel();
+                renderDailyMealView();
+            }
+        });
+
+        function renderDailyMealView() {
+            const selectedDate = document.getElementById('mealDateSelect').value;
+            if(!selectedDate) return;
+
+            const container = document.getElementById('dailyMealContainer');
+            container.innerHTML = '';
+
+            database.ref('daily_meals/' + selectedDate).once('value', (snapshot) => {
+                const dailyData = snapshot.val() || {};
+                let totB = 0, totL = 0, totD = 0, totE = 0;
+
+                Object.keys(currentUsersList).forEach(name => {
+                    const meals = dailyData[name] || { breakfast: 0, lunch: 0, dinner: 0, egg: 0, other: 0 };
+                    
+                    totB += parseFloat(meals.breakfast || 0);
+                    totL += parseFloat(meals.lunch || 0);
+                    totD += parseFloat(meals.dinner || 0);
+                    totE += parseFloat(meals.egg || 0) + parseFloat(meals.other || 0);
+
+                    const isDisabled = isAdminMode ? "" : "disabled";
+
+                    const card = `
+                        <div class="daily-meal-card">
+                            <h4><i class="fa-regular fa-user"></i> ${name}</h4>
+                            <div class="daily-meal-grid">
+                                <div class="meal-input-box">
+                                    <label>${currentLang === 'en' ? 'Breakfast' : 'সকাল'}</label>
+                                    <input type="number" step="0.5" value="${meals.breakfast}" ${isDisabled} onchange="updateDailyMeal('${selectedDate}', '${name}', 'breakfast', this.value)">
+                                </div>
+                                <div class="meal-input-box">
+                                    <label>${currentLang === 'en' ? 'Lunch' : 'দুপুর'}</label>
+                                    <input type="number" step="0.5" value="${meals.lunch}" ${isDisabled} onchange="updateDailyMeal('${selectedDate}', '${name}', 'lunch', this.value)">
+                                </div>
+                                <div class="meal-input-box">
+                                    <label>${currentLang === 'en' ? 'Dinner' : 'রাত'}</label>
+                                    <input type="number" step="0.5" value="${meals.dinner}" ${isDisabled} onchange="updateDailyMeal('${selectedDate}', '${name}', 'dinner', this.value)">
+                                </div>
+                                <div class="meal-input-box">
+                                    <label>${currentLang === 'en' ? 'Egg' : 'ডিম'}</label>
+                                    <input type="number" step="1" value="${meals.egg}" ${isDisabled} onchange="updateDailyMeal('${selectedDate}', '${name}', 'egg', this.value)">
+                                </div>
+                                <div class="meal-input-box">
+                                    <label>${currentLang === 'en' ? 'Other' : 'অন্যান্য'}</label>
+                                    <input type="number" step="0.5" value="${meals.other}" ${isDisabled} onchange="updateDailyMeal('${selectedDate}', '${name}', 'other', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+
+                document.getElementById('tot-breakfast').innerText = toBanglaNum(totB);
+                document.getElementById('tot-lunch').innerText = toBanglaNum(totL);
+                document.getElementById('tot-dinner').innerText = toBanglaNum(totD);
+                document.getElementById('tot-egg').innerText = toBanglaNum(totE);
+            });
+        }
+
+        function updateDailyMeal(date, name, type, value) {
+            if(!isAdminMode) return;
+            const floatVal = parseFloat(value) || 0;
+            database.ref('daily_meals/' + date + '/' + name).update({ [type]: floatVal }, () => {
+                calculateTotalMonthlyMealsForUser(name);
+            });
+        }
+
+        function calculateTotalMonthlyMealsForUser(username) {
+            database.ref('daily_meals').once('value', (snapshot) => {
+                const allDatesData = snapshot.val() || {};
+                let userMonthlyTotalMeals = 0;
+
+                Object.keys(allDatesData).forEach(date => {
+                    if(allDatesData[date] && allDatesData[date][username]) {
+                        const d = allDatesData[date][username];
+                        userMonthlyTotalMeals += parseFloat(d.breakfast || 0) + parseFloat(d.lunch || 0) + parseFloat(d.dinner || 0) + parseFloat(d.other || 0);
+                    }
+                });
+
+                database.ref('users/' + username).update({ meals: userMonthlyTotalMeals }, () => {
+                    recalculateSummary();
+                    database.ref('users').once('value', () => {}); 
+                });
+            });
+        }
+
+        function renderDailyBazarView() {
+            const selectedDate = document.getElementById('bazarDateSelect').value;
+            if(!selectedDate) return;
+
+            const tableBody = document.getElementById('liveBazarTableBody');
+            tableBody.innerHTML = '';
+            
+            database.ref('daily_bazar/' + selectedDate).on('value', (snapshot) => {
+                const bazarData = snapshot.val();
+                let totalDayCost = 0;
+                let serialNo = 1;
+                tableBody.innerHTML = '';
+
+                if (bazarData) {
+                    Object.keys(bazarData).forEach(key => {
+                        const item = bazarData[key];
+                        totalDayCost += parseFloat(item.amount || 0);
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${toBanglaNum(serialNo++)}</td>
+                            <td>${item.detail}</td>
+                            <td>${toBanglaNum(item.qty || '-')}</td>
+                            <td>৳ ${toBanglaNum(item.amount)}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    const noDataTxt = currentLang === 'en' ? 'No marketing data on this date.' : 'এই তারিখে কোনো বাজারের তথ্য নেই।';
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#555; padding:20px;">${noDataTxt}</td></tr>`;
+                }
+                document.getElementById('liveBazarTotal').innerText = "৳ " + toBanglaNum(totalDayCost);
+            });
+        }
+
+        function saveBazarDirectlyFromModal() {
+            const selectedDate = document.getElementById('bazarDateSelect').value;
+            const buyer = "Ashraful"; 
+            const detail = document.getElementById('dbazarFormItem').value.trim();
+            const qty = document.getElementById('dbazarFormQty').value.trim() || '-';
+            const amount = parseFloat(document.getElementById('dbazarFormAmount').value) || 0;
+
+            if(!selectedDate) return alert('তারিখ পাওয়া যায়নি!');
+            if(!detail) return alert('বাজার আইটেমের নাম লিখুন!');
+            if(amount <= 0) return alert('সঠিক টাকা লিখুন!');
+
+            database.ref('daily_bazar/' + selectedDate).push({
+                buyer: buyer,
+                detail: detail,
+                qty: qty,
+                amount: amount
+            }, () => {
+                const userRef = database.ref('users/' + buyer);
+                userRef.once('value', (snap) => {
+                    const data = snap.val() || { bazarCost: 0 };
+                    userRef.update({ bazarCost: (data.bazarCost || 0) + amount }, () => {
+                        closeModal();
+                        recalculateSummary();
+                    });
+                });
+            });
+        }
+
+        function openModal(mode) {
+            currentActiveMode = mode;
+            const modal = document.getElementById('appModal');
+            const title = document.getElementById('modalTitle');
+            const btnSave = document.getElementById('btnSaveAction');
+            
+            document.getElementById('form-member').style.display = 'none';
+            document.getElementById('form-general').style.display = 'none';
+            document.getElementById('form-direct-bazar').style.display = 'none';
+            document.getElementById('form-edit-profile').style.display = 'none';
+            document.getElementById('form-edit-email').style.display = 'none';
+            document.getElementById('form-edit-password').style.display = 'none';
+            document.getElementById('user-select-holder').style.display = 'block';
+            
+            modal.classList.add('active');
+            btnSave.innerText = currentLang === 'en' ? translations.en.popSave : translations.bn.popSave;
+
+            if(mode === 'member') {
+                title.innerText = currentLang === 'en' ? "Add New Mess Member" : "নতুন মেম্বার যুক্ত করুন";
+                document.getElementById('form-member').style.display = 'block';
+            } else if(mode === 'direct_bazar') {
+                title.innerText = currentLang === 'en' ? "Add Daily Bazar Info" : "ডেইলি বাজার যুক্ত করুন";
+                document.getElementById('form-direct-bazar').style.display = 'block';
+            } else if(mode === 'edit_profile') {
+                title.innerText = currentLang === 'en' ? "Modify Profile Information" : "তথ্য সংশোধন করুন";
+                document.getElementById('form-edit-profile').style.display = 'block';
+                document.getElementById('editProfileNameInput').value = localStorage.getItem('app_user_name') || 'Ashraful Alam Joy';
+                document.getElementById('editProfileContactInput').value = localStorage.getItem('app_user_contact') || '01754851433';
+            } else if(mode === 'edit_email') {
+                title.innerText = currentLang === 'en' ? "Change Email Address" : "ইমেইল পরিবর্তন করুন";
+                document.getElementById('form-edit-email').style.display = 'block';
+                document.getElementById('editProfileEmailInput').value = localStorage.getItem('app_user_email') || 'ashrafulalamjoy003@gmail.com';
+            } else if(mode === 'edit_password') {
+                title.innerText = currentLang === 'en' ? "Change Password" : "পাসওয়ার্ড পরিবর্তন করুন";
+                document.getElementById('form-edit-password').style.display = 'block';
+            } else {
+                document.getElementById('form-general').style.display = 'block';
+                if(mode === 'meal') {
+                    title.innerText = currentLang === 'en' ? "Add Daily Meal Quantities" : "ডেইলি মিল যুক্ত করুন";
+                    document.getElementById('dynamicLabel').innerText = currentLang === 'en' ? "Meal Value (e.g. 1.5 or 2)" : "মিলের সংখ্যা (যেমন: ১.৫ বা ২)";
+                    document.getElementById('dynamicInput').placeholder = "০.0";
+                } else if(mode === 'collection') {
+                    title.innerText = currentLang === 'en' ? "Deposit Cash Box" : "টাকা জমা রাখুন";
+                    document.getElementById('dynamicLabel').innerText = currentLang === 'en' ? "Amount of Cash (৳)" : "টাকার পরিমাণ (৳)";
+                    document.getElementById('dynamicInput').placeholder = "২৫০০";
+                }
+            }
+        }
+
+        function saveProfileData() {
+            const newName = document.getElementById('editProfileNameInput').value.trim();
+            const newContact = document.getElementById('editProfileContactInput').value.trim();
+
+            if(!newName) {
+                alert(currentLang === 'en' ? 'Name field cannot be left blank!' : 'নাম খালি রাখা যাবে না!');
+                return;
+            }
+            if(!newContact) {
+                alert(currentLang === 'en' ? 'Phone number cannot be left blank!' : 'ফোন নম্বর খালি রাখা যাবে না!');
+                return;
+            }
+
+            localStorage.setItem('app_user_name', newName);
+            localStorage.setItem('app_user_contact', newContact);
+
+            syncProfileUI();
+            closeModal();
+        }
+
+        function saveEmailData() {
+            const newEmail = document.getElementById('editProfileEmailInput').value.trim();
+
+            if(!newEmail || !newEmail.includes('@')) {
+                alert(currentLang === 'en' ? 'Please enter a valid email address!' : 'সঠিক ইমেইল ঠিকানা লিখুন!');
+                return;
+            }
+
+            localStorage.setItem('app_user_email', newEmail);
+
+            syncProfileUI();
+            closeModal();
+        }
+
+        function savePasswordData() {
+            const loggedUser = localStorage.getItem('mess_user_identity');
+            const oldPass = document.getElementById('oldPasswordInput').value.trim();
+            const newPass = document.getElementById('newPasswordInput').value.trim();
+
+            if(!oldPass || !newPass) {
+                alert(currentLang === 'en' ? 'Please fill all password fields!' : 'সবগুলো ঘর পূরণ করুন!');
+                return;
+            }
+            if(newPass.length < 6) {
+                alert(currentLang === 'en' ? 'New password must be at least 6 characters long!' : 'নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে!');
+                return;
+            }
+
+            const safeKey = btoa(loggedUser).replace(/=/g, "");
+
+            database.ref('app_credentials/' + safeKey).once('value', (snapshot) => {
+                const creds = snapshot.val();
+                if(creds && creds.password === oldPass) {
+                    database.ref('app_credentials/' + safeKey).update({
+                        password: newPass
+                    }, () => {
+                        alert(currentLang === 'en' ? 'Password changed successfully!' : 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!');
+                        closeModal();
+                    });
+                } else {
+                    alert(currentLang === 'en' ? 'Current password does not match!' : 'বর্তমান পাসওয়ার্ডটি সঠিক নয়!');
+                }
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('appModal').classList.remove('active');
+            document.getElementById('new-member-name').value = '';
+            document.getElementById('dynamicInput').value = '';
+            document.getElementById('dbazarFormItem').value = '';
+            document.getElementById('dbazarFormQty').value = '';
+            document.getElementById('dbazarFormAmount').value = '';
+            document.getElementById('editProfileContactInput').value = '';
+            document.getElementById('editProfileEmailInput').value = '';
+            document.getElementById('oldPasswordInput').value = '';
+            document.getElementById('newPasswordInput').value = '';
+        }
+
+        function deleteMember(name) {
+            const promptMsg = currentLang === 'en' ? `Are you sure you want to completely remove ${name}?` : `আপনি কি নিশ্চিতভাবে ${name} কে মেস থেকে বাদ দিতে চান?`;
+            if(confirm(promptMsg)) {
+                database.ref('users/' + name).remove(() => {
+                    database.ref('daily_meals').once('value', (snapshot) => {
+                        const dates = snapshot.val() || {};
+                        Object.keys(dates).forEach(date => {
+                            database.ref('daily_meals/' + date + '/' + name).remove();
+                        });
+                    });
+                    recalculateSummary();
+                });
+            }
+        }
+
+        function recalculateSummary() {
+            database.ref('users').once('value', (snapshot) => {
+                const users = snapshot.val();
+                let totalMeals = 0;
+                let totalCollection = 0;
+                let totalBazarCost = 0;
+                let totalFixedCost = 0;
+
+                if(users) {
+                    Object.keys(users).forEach(k => {
+                        totalMeals += parseFloat(users[k].meals || 0);
+                        totalCollection += parseFloat(users[k].collection || 0);
+                        totalBazarCost += parseFloat(users[k].bazarCost || 0);
+                        totalFixedCost += parseFloat(users[k].fixedCost || 0);
+                    });
+                }
+
+                const totalCost = totalBazarCost + totalFixedCost;
+                const mealRate = totalMeals > 0 ? (totalBazarCost / totalMeals).toFixed(2) : "0.00";
+                const balance = totalCollection - totalCost;
+
+                database.ref('summary').update({
+                    balance: balance,
+                    collection: totalCollection,
+                    meals: totalMeals,
+                    mealRate: mealRate
+                });
+            });
+        }
+
+        document.getElementById('btnSaveAction').addEventListener('click', () => {
+            if(currentActiveMode === 'member') {
+                const name = document.getElementById('new-member-name').value.trim();
+                if(!name) return alert('নাম লিখুন!');
+                
+                database.ref('users/' + name).set({
+                    meals: 0, collection: 0, bazarCost: 0, fixedCost: 0
+                }, () => {
+                    recalculateSummary();
+                    closeModal();
+                });
+            } else if(currentActiveMode === 'direct_bazar') {
+                saveBazarDirectlyFromModal();
+            } else if(currentActiveMode === 'edit_profile') {
+                saveProfileData();
+            } else if(currentActiveMode === 'edit_email') {
+                saveEmailData();
+            } else if(currentActiveMode === 'edit_password') {
+                savePasswordData();
+            } else {
+                const user = document.getElementById('select-user').value;
+                const val = parseFloat(document.getElementById('dynamicInput').value) || 0;
+                if(val <= 0) return alert('সঠিক পরিমাণ লিখুন!');
+
+                const userRef = database.ref('users/' + user);
+                userRef.once('value', (snap) => {
+                    const data = snap.val() || { meals:0, collection:0, bazarCost:0, fixedCost:0 };
+                    
+                    if(currentActiveMode === 'meal') {
+                        userRef.update({ meals: (data.meals || 0) + val });
+                    } else if(currentActiveMode === 'collection') {
+                        userRef.update({ collection: (data.collection || 0) + val });
+                    }
+                    
+                    setTimeout(() => {
+                        recalculateSummary();
+                        closeModal();
+                    }, 200);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
