@@ -183,6 +183,27 @@
             transform: scale(0.95);
         }
 
+        /* ম্যাচ কোড ডিসপ্লে বক্স */
+        .match-code-display-box {
+            background: rgba(255, 153, 102, 0.08);
+            border: 1px dashed #ff9966;
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-white);
+        }
+        .match-code-display-box strong {
+            color: #ff5e62;
+            font-size: 15px;
+            letter-spacing: 1px;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-left: 5px;
+        }
+
         .bazar-table-box {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -1022,6 +1043,19 @@
             font-size: 15px; font-weight: 600; cursor: pointer;
             margin-top: 10px; box-shadow: 0 4px 15px rgba(255, 94, 98, 0.2);
         }
+        
+        /* ওটিপি ফ্লো ভিত্তিক নতুন কাস্টম স্টাইল */
+        .flex-row-otp {
+            display: flex; gap: 8px;
+        }
+        .flex-row-otp input { flex: 1; }
+        .flex-row-otp button {
+            background: #ff5e62; color: #fff; border: none;
+            padding: 0 15px; border-radius: 14px; cursor: pointer;
+            font-size: 12px; font-weight: 600; white-space: nowrap;
+        }
+        .hidden-element { display: none !important; }
+        .timer-txt { font-size: 12px; color: #ff9966; margin-top: 4px; text-align: right; }
     </style>
 </head>
 <body>
@@ -1053,13 +1087,36 @@
             <div id="secRegisterForm" class="sec-form">
                 <div class="sec-input-group">
                     <label>ইমেইল বা মোবাইল নম্বর</label>
-                    <input type="text" id="secRegUser" placeholder="নতুন ইমেইল বা নম্বর দিন">
+                    <div class="flex-row-otp">
+                        <input type="text" id="secRegUser" placeholder="নতুন ইমেইল বা নম্বর দিন">
+                        <button id="btnSendOtp" onclick="sendOTPRequest()">Send OTP</button>
+                    </div>
                 </div>
-                <div class="sec-input-group">
-                    <label>পাসওয়ার্ড</label>
-                    <input type="password" id="secRegPass" placeholder="একটি স্ট্রং পাসওয়ার্ড দিন">
+
+                <div class="sec-input-group hidden-element" id="otpVerificationSection">
+                    <label>ওটিপি (OTP) কোড দিন</label>
+                    <div class="flex-row-otp">
+                        <input type="text" id="secRegOtpInput" placeholder="XXXX" maxlength="4" style="text-align: center; font-weight: bold; letter-spacing: 4px;">
+                        <button id="btnVerifyOtp" onclick="verifyOTPRequest()" style="background: #2ecc71;">Verify</button>
+                    </div>
+                    <div class="timer-txt" id="otpTimerText">মেয়াদ আছে: <span id="secCountdown">30</span> সেকেন্ড</div>
+                    <div class="timer-txt hidden-element" id="otpResendText"><span style="cursor:pointer; text-decoration:underline;" onclick="sendOTPRequest()">পুনরায় ওটিপি পাঠান (Resend)</span></div>
                 </div>
-                <button class="sec-submit-btn" onclick="handleSecurityRegister()">অ্যাকাউন্ট তৈরি করুন</button>
+
+                <div id="passwordRegistrationSection" class="hidden-element">
+                    <div class="sec-input-group">
+                        <label>কাস্টম ম্যানেজার কোড (পছন্দমতো ৪ সংখ্যা)</label>
+                        <div class="flex-row-otp" style="align-items: center; background: #1e1e1e; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); padding-left: 14px;">
+                            <span style="color: #ff9966; font-weight: bold; font-size: 14px;">MESS</span>
+                            <input type="text" id="customMatchCodeDigits" placeholder="1234" maxlength="4" style="background:transparent; border:none; padding:14px 10px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        </div>
+                    </div>
+                    <div class="sec-input-group">
+                        <label>পাসওয়ার্ড</label>
+                        <input type="password" id="secRegPass" placeholder="একটি স্ট্রং পাসওয়ার্ড দিন">
+                    </div>
+                    <button class="sec-submit-btn" onclick="handleSecurityRegister()">অ্যাকাউন্ট তৈরি করুন</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1109,6 +1166,10 @@
                 </div>
 
                 <div id="manager-panel-view">
+                    <div class="match-code-display-box">
+                        <i class="fa-solid fa-key"></i> আপনার মেম্বারদের দেওয়ার জন্য ম্যাচ কোড: <strong id="lbl-displayed-match-code">LOADING...</strong>
+                    </div>
+
                     <section class="action-section">
                         <p class="section-title" id="lbl-select-menu">মেনু নির্বাচন করুন</p>
                         <div class="action-grid">
@@ -1162,37 +1223,48 @@
                 </div>
 
                 <div id="member-panel-view" style="display: none;">
-                    <section class="personal-section">
-                        <p class="section-title-center" id="lbl-live-summary">AMAR HISAB (LIVE SUMMARY)</p>
-                        <div class="circle-row">
-                            <div class="circle-item">
-                                <div class="glow-circle"><span id="my-meals">০.০</span></div>
-                                <span class="circle-label" id="lbl-circ-meals">Total Meals</span>
-                            </div>
-                            <div class="circle-item">
-                                <div class="glow-circle"><span id="my-collection">৳ ০</span></div>
-                                <span class="circle-label" id="lbl-circ-coll">Total Coll.</span>
-                            </div>
-                            <div class="circle-item">
-                                <div class="glow-circle"><span id="my-cost">৳ ০</span></div>
-                                <span class="circle-label" id="lbl-circ-cost">Meal Cost</span>
-                            </div>
-                            <div class="circle-item positive">
-                                <div class="glow-circle"><span id="my-balance">৳ ০</span></div>
-                                <span class="circle-label" id="lbl-circ-bal">Balance</span>
-                            </div>
+                    <div id="memberCodeVerificationBox" style="text-align: center; padding: 30px 15px; background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: 20px;">
+                        <i class="fa-solid fa-lock" style="font-size: 30px; color: #ff5e62; margin-bottom: 15px;"></i>
+                        <h4 style="color: #fff; font-size: 15px; margin-bottom: 10px;">ম্যানেজারের কাছ থেকে কোড নিয়ে ইনপুট দিন</h4>
+                        <div class="input-group" style="max-width: 250px; margin: 0 auto 15px auto;">
+                            <input type="text" id="memberInputMatchCode" placeholder="ম্যাচ কোড দিন (যেমন: MSG26)" style="text-align: center; text-transform: uppercase;">
                         </div>
-                    </section>
+                        <button class="sec-submit-btn" style="max-width: 180px; margin: 0 auto; padding: 10px;" onclick="verifyMemberMatchCode()">হিসাব দেখুন</button>
+                    </div>
 
-                    <section class="dashboard-grid">
-                        <div class="info-card highlight-border" style="grid-column: span 2;">
-                            <i class="fa-solid fa-calculator card-icon-glow"></i>
-                            <div class="card-data">
-                                <span class="label" id="lbl-curr-rate-lang">CURRENT MEAL RATE (চলতি মিল রেট)</span>
-                                <span class="value glow-text" id="member-view-meal-rate" style="font-size: 18px;">৳ ০.০০</span>
+                    <div id="memberUnlockedContent" style="display: none;">
+                        <section class="personal-section">
+                            <p class="section-title-center" id="lbl-live-summary">AMAR HISAB (LIVE SUMMARY)</p>
+                            <div class="circle-row">
+                                <div class="circle-item">
+                                    <div class="glow-circle"><span id="my-meals">০.০</span></div>
+                                    <span class="circle-label" id="lbl-circ-meals">Total Meals</span>
+                                </div>
+                                <div class="circle-item">
+                                    <div class="glow-circle"><span id="my-collection">৳ ০</span></div>
+                                    <span class="circle-label" id="lbl-circ-coll">Total Coll.</span>
+                                </div>
+                                <div class="circle-item">
+                                    <div class="glow-circle"><span id="my-cost">৳ ০</span></div>
+                                    <span class="circle-label" id="lbl-circ-cost">Meal Cost</span>
+                                </div>
+                                <div class="circle-item positive">
+                                    <div class="glow-circle"><span id="my-balance">৳ ০</span></div>
+                                    <span class="circle-label" id="lbl-circ-bal">Balance</span>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+
+                        <section class="dashboard-grid">
+                            <div class="info-card highlight-border" style="grid-column: span 2;">
+                                <i class="fa-solid fa-calculator card-icon-glow"></i>
+                                <div class="card-data">
+                                    <span class="label" id="lbl-curr-rate-lang">CURRENT MEAL RATE (চলতি মিল রেট)</span>
+                                    <span class="value glow-text" id="member-view-meal-rate" style="font-size: 18px;">৳ ০.০০</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
                 </div>
             </div>
 
@@ -1479,6 +1551,12 @@
         let currentLang = 'bn';
         let currentSavedMonthText = "জুলাই ২৬";
         let currentSavedMessName = "ফায়ার সার্ভিসের মেস";
+        
+        // ম্যাচ সিকিউরিটি ভেরিয়েবলস
+        let generatedMatchCode = "";
+        let isMemberVerified = false;
+        let otpTimerInterval;
+        let demoGeneratedOtp = "";
 
         // --- নতুন সিকিউরিটি সিস্টেম লজিক এবং ফাংশন ---
         function switchSecTab(type) {
@@ -1495,45 +1573,111 @@
             }
         }
 
-        // সিকিউরিটি রেজিস্ট্রেশন লজিক (Firebase-এ জমা হবে)
-        function handleSecurityRegister() {
+        // ওটিপি জেনারেশন এবং লাইভ টাইমার লজিক (ধাপ ১)
+        function sendOTPRequest() {
             const user = document.getElementById('secRegUser').value.trim();
-            const pass = document.getElementById('secRegPass').value.trim();
-
-            if(!user || !pass) {
-                alert(currentLang === 'en' ? 'Please fill all fields!' : 'সবগুলো ঘর পূরণ করুন!');
+            if(!user) {
+                alert(currentLang === 'en' ? 'Please enter Email/Phone number first!' : 'দয়া করে আগে ইমেইল অথবা মোবাইল নম্বর দিন!');
                 return;
             }
 
             const safeKey = btoa(user).replace(/=/g, "");
 
+            // ইউনিক ইউজার ভ্যালিডেশন চেক (Firebase ডুপ্লিকেট চেক)
             database.ref('app_credentials/' + safeKey).once('value', (snapshot) => {
                 if(snapshot.exists()) {
-                    alert(currentLang === 'en' ? 'User already exists!' : 'এই অ্যাকাউন্টটি ইতিমধ্যে তৈরি করা আছে!');
+                    alert(currentLang === 'en' ? 'This user identity already exists!' : 'এই অ্যাকাউন্টটি ইতিমধ্যে তৈরি করা আছে! লগইন করার চেষ্টা করুন।');
                 } else {
-                    database.ref('app_credentials/' + safeKey).set({
-                        username: user,
-                        password: pass
-                    }, () => {
-                        alert(currentLang === 'en' ? 'Registration Successful! Logging in...' : 'নিবন্ধন সফল হয়েছে! অ্যাপে প্রবেশ করা হচ্ছে...');
-                        
-                        let defaultName = "User_" + user.split('@')[0];
-                        localStorage.setItem('app_user_name', defaultName);
-                        
-                        if(user.includes('@')) {
-                            localStorage.setItem('app_user_email', user);
-                            localStorage.setItem('app_user_contact', '01XXXXXXXXX');
-                        } else {
-                            localStorage.setItem('app_user_contact', user);
-                            localStorage.setItem('app_user_email', 'example@mail.com');
-                        }
-
-                        localStorage.setItem('mess_user_logged', 'true');
-                        localStorage.setItem('mess_user_identity', user);
-                        syncProfileUI();
-                        unlockApp();
-                    });
+                    // ওটিপি জেনারেশন ও সেশন স্টার্ট
+                    demoGeneratedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+                    alert((currentLang === 'en' ? 'Demo OTP sent to your identity: ' : 'আপনার ঠিকানায় ডেমো ওটিপি পাঠানো হয়েছে: ') + demoGeneratedOtp);
+                    
+                    document.getElementById('otpVerificationSection').classList.remove('hidden-element');
+                    document.getElementById('otpResendText').classList.add('hidden-element');
+                    document.getElementById('otpTimerText').classList.remove('hidden-element');
+                    
+                    startSecOtpTimer();
                 }
+            });
+        }
+
+        // ৩০ সেকেন্ডের ওটিপি টাইমার কাউন্টডাউন
+        function startSecOtpTimer() {
+            let timeLeft = 30;
+            clearInterval(otpTimerInterval);
+            
+            otpTimerInterval = setInterval(() => {
+                if(timeLeft <= 0) {
+                    clearInterval(otpTimerInterval);
+                    document.getElementById('otpTimerText').classList.add('hidden-element');
+                    document.getElementById('otpResendText').classList.remove('hidden-element');
+                } else {
+                    document.getElementById('secCountdown').innerText = timeLeft;
+                }
+                timeLeft -= 1;
+            }, 1000);
+        }
+
+        // ওটিপি ভেরিফিকেশন চেক (ধাপ ২)
+        function verifyOTPRequest() {
+            const typedOtp = document.getElementById('secRegOtpInput').value.trim();
+            if(typedOtp === demoGeneratedOtp && demoGeneratedOtp !== "") {
+                clearInterval(otpTimerInterval);
+                alert(currentLang === 'en' ? 'OTP Verification Success!' : 'ওটিপি ভেরিফিকেশন সফল হয়েছে!');
+                
+                // লক ইনপুট যাতে ভেরিফাই হওয়ার পর চেঞ্জ করতে না পারে
+                document.getElementById('secRegUser').disabled = true;
+                document.getElementById('btnSendOtp').disabled = true;
+                document.getElementById('secRegOtpInput').disabled = true;
+                document.getElementById('btnVerifyOtp').disabled = true;
+                
+                // পাসওয়ার্ড ও ম্যাচ কোড সেকশন ওপেন
+                document.getElementById('otpVerificationSection').classList.add('hidden-element');
+                document.getElementById('passwordRegistrationSection').classList.remove('hidden-element');
+            } else {
+                alert(currentLang === 'en' ? 'Invalid OTP Code!' : 'ভুল ওটিপি কোড! আবার চেষ্টা করুন।');
+            }
+        }
+
+        // সিকিউরিটি রেজিস্ট্রেশন সাবমিট লজিক (Firebase-এ জমা হবে) (ধাপ ৩)
+        function handleSecurityRegister() {
+            const user = document.getElementById('secRegUser').value.trim();
+            const pass = document.getElementById('passwordRegistrationSection').querySelector('#secRegPass').value.trim();
+            const customDigits = document.getElementById('customMatchCodeDigits').value.trim();
+
+            if(!pass || !customDigits || customDigits.length !== 4) {
+                alert(currentLang === 'en' ? 'Please fill all fields and enter a 4-digit code!' : 'সবগুলো ঘর পূরণ করুন এবং ৪ ডিজিটের সঠিক কোড দিন!');
+                return;
+            }
+
+            const safeKey = btoa(user).replace(/=/g, "");
+            const finalGeneratedCode = "MESS" + customDigits;
+
+            // ডাটাবেজে ডাটা ও কাস্টম ম্যাচ কোড সিঙ্ক করা হচ্ছে
+            database.ref('app_credentials/' + safeKey).set({
+                username: user,
+                password: pass
+            }, () => {
+                // কাস্টম জেনারেটেড ম্যাচ কোড ডাটাবেজে রাইট করা হচ্ছে
+                database.ref('summary/match_code').set(finalGeneratedCode, () => {
+                    alert(currentLang === 'en' ? 'Registration Successful!' : 'নিবন্ধন সফল হয়েছে!');
+                    
+                    let defaultName = "User_" + user.split('@')[0];
+                    localStorage.setItem('app_user_name', defaultName);
+                    
+                    if(user.includes('@')) {
+                        localStorage.setItem('app_user_email', user);
+                        localStorage.setItem('app_user_contact', '01XXXXXXXXX');
+                    } else {
+                        localStorage.setItem('app_user_contact', user);
+                        localStorage.setItem('app_user_email', 'example@mail.com');
+                    }
+
+                    localStorage.setItem('mess_user_logged', 'true');
+                    localStorage.setItem('mess_user_identity', user);
+                    syncProfileUI();
+                    unlockApp();
+                });
             });
         }
 
@@ -1565,12 +1709,14 @@
         function unlockApp() {
             document.getElementById('securityAuthGate').style.display = 'none';
             document.getElementById('mainAppContainer').style.display = 'flex';
+            checkAndGenerateMatchCode();
         }
 
         // লগআউট ফাংশন
         function handleSecurityLogout() {
             localStorage.removeItem('mess_user_logged');
             localStorage.removeItem('mess_user_identity');
+            localStorage.removeItem('verified_match_code');
             location.reload();
         }
 
@@ -1745,6 +1891,57 @@
             }
         }
 
+        // --- নতুন ম্যাচ কোড জেনারেশন ও ভেরিফিকেশন লজিক ---
+        function checkAndGenerateMatchCode() {
+            database.ref('summary/match_code').on('value', (snapshot) => {
+                let code = snapshot.val();
+                if(!code) {
+                    // যদি ডাটাবেজে কোনো কোড আগে তৈরি না হয়ে থাকে
+                    code = "MESS" + Math.floor(1000 + Math.random() * 9000);
+                    database.ref('summary/match_code').set(code);
+                }
+                generatedMatchCode = code;
+                document.getElementById('lbl-displayed-match-code').innerText = code;
+                
+                // লোকাল স্টোরেজে আগে থেকে মেম্বার ভেরিফাইড কোড থাকলে চেক করুন
+                const savedCode = localStorage.getItem('verified_match_code');
+                if(savedCode === generatedMatchCode) {
+                    isMemberVerified = true;
+                    showMemberContent(true);
+                } else {
+                    isMemberVerified = false;
+                    showMemberContent(false);
+                }
+            });
+        }
+
+        function verifyMemberMatchCode() {
+            const inputCode = document.getElementById('memberInputMatchCode').value.trim().toUpperCase();
+            if(!inputCode) {
+                alert(currentLang === 'en' ? 'Please enter the Match Code!' : 'দয়া করে ম্যাচ কোডটি লিখুন!');
+                return;
+            }
+
+            if(inputCode === generatedMatchCode) {
+                isMemberVerified = true;
+                localStorage.setItem('verified_match_code', inputCode);
+                showMemberContent(true);
+                alert(currentLang === 'en' ? 'Match Unlocked Successfully!' : 'সফলভাবে ম্যাচের হিসাব আনলক হয়েছে!');
+            } else {
+                alert(currentLang === 'en' ? 'Invalid Match Code! Ask your manager.' : 'ভুল কোড! আপনার ম্যানেজারের থেকে সঠিক কোড নিন।');
+            }
+        }
+
+        function showMemberContent(isUnlocked) {
+            if(isUnlocked) {
+                document.getElementById('memberCodeVerificationBox').style.display = 'none';
+                document.getElementById('memberUnlockedContent').style.display = 'block';
+            } else {
+                document.getElementById('memberCodeVerificationBox').style.display = 'block';
+                document.getElementById('memberUnlockedContent').style.display = 'none';
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('mess_user_logged');
             if(isLogged === 'true') {
@@ -1790,6 +1987,12 @@
         }
 
         function switchMainTab(tabId) {
+            // যদি ম্যানেজার মোড না হয় এবং কোড ভেরিফাইড না থাকে তবে মেম্বার প্যানেল ছাড়া বাকি ট্যাব লক থাকবে
+            if(!isAdminMode && !isMemberVerified && tabId !== 'dashboard') {
+                alert(currentLang === 'en' ? 'Please verify Match Code on Dashboard first!' : 'দয়া করে আগে ড্যাশবোর্ডে ম্যাচ কোড দিয়ে আনলক করুন!');
+                return;
+            }
+
             document.querySelectorAll('.tab-view').forEach(view => view.style.display = 'none');
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             
@@ -1849,9 +2052,14 @@
                 roleBadge.innerText = "Member View";
                 roleBadge.style.color = "#2ecc71";
                 roleBadge.style.background = "rgba(46, 204, 113, 0.15)";
+                
+                // চেক করুন মেম্বার কোড ভেরিফাইড আছে কি না
+                showMemberContent(isMemberVerified);
             }
-            renderDailyMealView();
-            renderDailyBazarView();
+            if(isAdminMode || isMemberVerified) {
+                renderDailyMealView();
+                renderDailyBazarView();
+            }
         }
 
         database.ref('summary').on('value', (snapshot) => {
@@ -1903,8 +2111,8 @@
             const memberListDiv = document.getElementById('memberList');
             const selectUserDropdown = document.getElementById('select-user');
             
-            memberListDiv.innerHTML = '';
-            selectUserDropdown.innerHTML = '';
+            if(memberListDiv) memberListDiv.innerHTML = '';
+            if(selectUserDropdown) selectUserDropdown.innerHTML = '';
 
             if(users) {
                 database.ref('daily_meals').once('value', (mealSnapshot) => {
@@ -1916,7 +2124,7 @@
                         let opt = document.createElement('option');
                         opt.value = username;
                         opt.innerText = username;
-                        selectUserDropdown.appendChild(opt);
+                        if(selectUserDropdown) selectUserDropdown.appendChild(opt);
 
                         let totalBreakfast = 0;
                         let totalLunch = 0;
@@ -1944,18 +2152,21 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn-remove" onclick="deleteMember('${username}')">রিমুভ</button>
+                                ${isAdminMode ? `<button class="btn-remove" onclick="deleteMember('${username}')">রিমুভ</button>` : ''}
                             </div>
                         `;
-                        memberListDiv.innerHTML += cardHTML;
+                        if(memberListDiv) memberListDiv.innerHTML += cardHTML;
                     });
                 });
                 updatePersonalPanel();
-                renderDailyMealView();
+                if(isAdminMode || isMemberVerified) {
+                    renderDailyMealView();
+                }
             }
         });
 
         function renderDailyMealView() {
+            if(!isAdminMode && !isMemberVerified) return;
             const selectedDate = document.getElementById('mealDateSelect').value;
             if(!selectedDate) return;
 
@@ -2035,12 +2246,12 @@
 
                 database.ref('users/' + username).update({ meals: userMonthlyTotalMeals }, () => {
                     recalculateSummary();
-                    database.ref('users').once('value', () => {}); 
                 });
             });
         }
 
         function renderDailyBazarView() {
+            if(!isAdminMode && !isMemberVerified) return;
             const selectedDate = document.getElementById('bazarDateSelect').value;
             if(!selectedDate) return;
 
